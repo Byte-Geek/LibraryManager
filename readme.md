@@ -356,10 +356,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
-      - run: dotnet publish LibraryManager.csproj --configuration Release --output ./publish
-      - run: cd publish && zip -r ../LibraryManager-${{ github.ref_name }}.zip .
+      - run: dotnet publish LibraryManager.csproj --configuration Release --output ./publish-win-x64 -r win-x64 --self-contained true -p:PublishSingleFile=true
+      - run: dotnet publish LibraryManager.csproj --configuration Release --output ./publish-linux-x64 -r linux-x64 --self-contained true -p:PublishSingleFile=true
+      - run: |
+          cp publish-win-x64/LibraryManager.exe LibraryManager-${{ github.ref_name }}-win-x64.exe
+          cp publish-linux-x64/LibraryManager LibraryManager-${{ github.ref_name }}-linux-x64
       - uses: softprops/action-gh-release@v2
         with:
-          files: LibraryManager-${{ github.ref_name }}.zip
+          files: |
+            LibraryManager-${{ github.ref_name }}-win-x64.exe
+            LibraryManager-${{ github.ref_name }}-linux-x64
 ```
-
