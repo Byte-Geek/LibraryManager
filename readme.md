@@ -323,7 +323,7 @@ This is why, for example, `CheckIfOverdue()` exists on `Book` (it only needs tha
 
 ## CI/CD Pipeline
 
-> Build the project automatically on every push/PR (CI), and publish a downloadable release automatically when a version tag is pushed (CD).
+> Build the project and publish a downloadable release automatically, only when a version tag is pushed.
 
 **`.github/workflows/ci.yml`:**
 
@@ -332,10 +332,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "main" ]
     tags: [ "v*" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -366,6 +363,3 @@ jobs:
           files: LibraryManager-${{ github.ref_name }}.zip
 ```
 
-**CI (`build` job)** runs on every push and pull request targeting `main`: `actions/setup-dotnet` installs the .NET 10 SDK on the `ubuntu-latest` runner, then `dotnet restore` + `dotnet build` verify the project compiles — same commands as local, just automated. No test step yet since the project has no test suite.
-
-**CD (`release` job)** only runs when the pushed ref is a version tag (`refs/tags/v*`, e.g. pushing `git tag v1.0.0 && git push --tags`), and only after `build` succeeds (`needs: build`). It runs `dotnet publish` to produce a self-contained build in `./publish`, zips it, and uses `softprops/action-gh-release` to create a GitHub Release with that zip attached — so tagging a version is all it takes to ship a downloadable release, no manual steps.
